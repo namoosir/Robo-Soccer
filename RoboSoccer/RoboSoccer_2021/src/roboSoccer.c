@@ -74,7 +74,7 @@
 
 //just uncomment your bot's hex key to compile for your bot, and comment the other ones out.
 #ifndef HEXKEY
-	#define HEXKEY "00:16:XX:XX:XX:XX"	// <--- Your bot's hex code goes here
+	#define HEXKEY "00:16:53:56:4c:53"	// <--- Your bot's hex code goes here
 #endif
 
 int main(int argc, char **argv)
