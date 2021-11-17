@@ -705,8 +705,8 @@ void AI_main(struct RoboAI *ai, struct blob *blobs, void *state)
   struct displayList *q;
   
   // change to the ports representing the left and right motors in YOUR robot
-  char lport=MOTOR_A;
-  char rport=MOTOR_B;
+  char lport=MOTOR_B;
+  char rport=MOTOR_C;
       
   /************************************************************
    * Standard initialization routine for starter code,
@@ -787,6 +787,13 @@ void AI_main(struct RoboAI *ai, struct blob *blobs, void *state)
   *****************************************************************************/
 //  fprintf(stderr,"Just trackin'!\n");	// bot, opponent, and ball.
 //  track_agents(ai,blobs);		// Currently, does nothing but endlessly track
+  if (ai->st.state >= 1 || ai->st.state <= 99) {
+    play_soccer();
+  } else if (ai->st.state >= 101 || ai->st.state <= 199) {
+    penalty_kick();
+  } else if (ai->st.state >= 201){
+    ball_chase(ai, blobs, state);
+  }
  }
 
 }
@@ -805,4 +812,69 @@ void AI_main(struct RoboAI *ai, struct blob *blobs, void *state)
  there.
 **********************************************************************************/
 
+int ball_chase(struct RoboAI *ai, struct blob *blobs, void* state) {
+  double ball_pred_x = ai->st.old_bcx + ai->st.bmx;
+  double ball_pred_y = ai->st.old_bcy + ai->st.bmy;
 
+  //rotate to facing the ball
+  if (state == 201) {
+    //at the ball
+    if (dist(ai->st.ball->cx, ai->st.ball->cy, ai->st.self->cx, ai->st.self->cy) < 10 && get_angle_from_vector(ai->st.ball->cx-ai->st.self->cx, ai->st.ball->cy-ai->st.self->cy) - get_angle_from_vector(ai->st.sdx, ai->st.sdy) < 10) {
+      ai->st.state = 202;
+    //facing the ball
+    } else if () {
+      //drive forward
+    } else {
+
+
+      //rotate towards the ball
+
+    }
+    
+  //kick
+  } else {
+    BT_all_stop(0);
+    kick_ball(100);
+    ai->st.state = 201;
+  }
+
+}
+
+void penalty_kick() {
+
+}
+
+void play_soccer() {
+
+}
+
+// kick the ball with power power
+int kick_ball(int power) {
+  int time = 10000/power;
+
+  for (int i = 0; i < time; i++) {
+    BT_motor_port_start(MOTOR_A, power);
+  }
+
+  for (int i = 0; i < time; i++) {
+    BT_motor_port_start(MOTOR_A, -power);
+  }
+
+  BT_all_stop(0);
+}
+
+int found_blobs() {
+
+}
+
+int dist(double self_x, double self_y, double target_x, double target_y) {
+  return sqrt(powf(self_x-target_x, 2) + powf(self_y-target_y, 2));
+}
+
+int get_angle_from_vector(int x, int y) {
+  double angle = atan(y/x);
+  if (angle < 0) {
+    angle += 360;
+  }
+  return angle;
+}
