@@ -925,6 +925,12 @@ void go_towards_ball(struct RoboAI *ai, struct blob *blobs, void *state) {
   double ball_pred_y = ai->st.old_bcy + ai->st.bmy;
   double error = get_angle_from_vector(ball_pred_x-ai->st.self->cx, ball_pred_y-ai->st.self->cy) - get_angle_from_vector(ai->st.self->dx, ai->st.self->dy);
 
+  if (error < -180) {
+    error += 360;
+  } else if (error > 180) {
+    error += 360;
+  }
+  
   //close to ball
   if (dist(ai->st.ball->cx, ai->st.ball->cy, ai->st.self->cx, ai->st.self->cy) < 10 && error < 5 && error > -5) {
     BT_all_stop(1);
@@ -935,9 +941,9 @@ void go_towards_ball(struct RoboAI *ai, struct blob *blobs, void *state) {
   } else if (error > 5 || error < -5) {
     BT_all_stop(1);
     printf("not facing ball error: %f\n", error);
-    double c = 10;
-    BT_motor_port_start(MOTOR_B,(c*error)/100);
-    BT_motor_port_start(MOTOR_C,(c*-error)/100);
+
+    BT_motor_port_start(MOTOR_B,(100*error)/error);
+    BT_motor_port_start(MOTOR_C,(100*-error)/error);
     return;
   //facing ball but not close to it
   } else {
