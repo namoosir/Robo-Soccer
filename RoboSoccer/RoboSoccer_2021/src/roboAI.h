@@ -156,9 +156,16 @@ struct displayList *clearDP(struct displayList *head);
    Add headers for your own functions implementing the bot's soccer
    playing functionality below.
 *****************************************************************************/
-int ball_chase(struct RoboAI *ai, struct blob *blobs, void *state);
-void penalty_kick();
-void play_soccer();
-int kick_ball(int power);
+// void ball_chase(struct RoboAI *ai, struct blob *blobs, void *state);
+// void penalty_kick(struct RoboAI *ai, struct blob *blobs, void* state);
+// void play_soccer();
+void heavy_kick();
+void light_kick();
+void kick_ball(int power);
+double get_angle_from_vector(double x, double y);
+double dist(double self_x, double self_y, double target_x, double target_y);
+void go_to_self_net(struct RoboAI *ai, struct blob *blobs, void* state);
+void go_to_ball(struct RoboAI *ai, struct blob *blobs, void* state);
+void go_towards_ball(struct RoboAI *ai, struct blob *blobs, void* state);
 
 #endif
