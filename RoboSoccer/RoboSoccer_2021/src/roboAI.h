@@ -28,7 +28,7 @@
 
 //update to actual motors
 #define LEFT_MOTOR MOTOR_B
-#define RIGHT_MOTOR MOTOR_A
+#define RIGHT_MOTOR MOTOR_C
 
 #define AI_SOCCER 0 	// Play soccer!
 #define AI_PENALTY 1    // Go score some goals!
@@ -159,13 +159,19 @@ struct displayList *clearDP(struct displayList *head);
 // void ball_chase(struct RoboAI *ai, struct blob *blobs, void *state);
 // void penalty_kick(struct RoboAI *ai, struct blob *blobs, void* state);
 // void play_soccer();
-void heavy_kick();
-void light_kick();
+void heavy_kick(struct RoboAI *ai, int back_to_state);
+void light_kick(struct RoboAI *ai, int back_to_state);
 void kick_ball(int power);
 double get_angle_from_vector(double x, double y);
 double dist(double self_x, double self_y, double target_x, double target_y);
 void go_to_self_net(struct RoboAI *ai, struct blob *blobs, void* state);
 void go_to_ball(struct RoboAI *ai, struct blob *blobs, void* state);
-void go_towards_ball(struct RoboAI *ai, struct blob *blobs, void* state);
-
+void go_towards_ball(struct RoboAI *ai, int back_to_state);
+void recover_kick(struct RoboAI *ai, int back_to_state);
+void go_to_ball_by_buffer(struct RoboAI *ai, int back_to_state);
+void go_to_location(struct RoboAI *ai, double x, double y, int back_to_state, int go_buff);
+void go_behind_ball(struct RoboAI *ai, int back_to_state);
+void unit_vector(double* out_x, double* out_y, double x, double y);
+int compare_by_side(struct RoboAI *ai, double var1, double var2);
+void face_to_ball(struct RoboAI *ai, int back_to_state, int go_buff);
 #endif

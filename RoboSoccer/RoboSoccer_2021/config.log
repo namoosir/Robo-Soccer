@@ -27,10 +27,6 @@ uname -v = #101-Ubuntu SMP Fri Oct 15 20:00:55 UTC 2021
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
 
-PATH: /home/nazmus/apache-maven-3.6.3/bin
-PATH: /home/linuxbrew/.linuxbrew/bin
-PATH: /home/linuxbrew/.linuxbrew/sbin
-PATH: /home/nazmus/.local/bin
 PATH: /home/nazmus/.nvm/versions/node/v14.17.0/bin
 PATH: /home/nazmus/apache-maven-3.6.3/bin
 PATH: /home/linuxbrew/.linuxbrew/bin
