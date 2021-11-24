@@ -42,6 +42,9 @@
 #define MAX_DRIVE_POWER     100
 #define TURN_ADJ_POWER      25
 
+#define BALL_WIDTH			40
+#define SELF_WIDTH			100
+
 struct AI_data{
 	// This data structure is used to hold all data relevant to the state of the AI.
 	// This includes, of course, the current state, as well as the status of
@@ -170,8 +173,16 @@ void go_towards_ball(struct RoboAI *ai, int back_to_state);
 void recover_kick(struct RoboAI *ai, int back_to_state);
 void go_to_ball_by_buffer(struct RoboAI *ai, int back_to_state);
 void go_to_location(struct RoboAI *ai, double x, double y, int back_to_state, int go_buff);
+void go_util_close(struct RoboAI *ai, double x, double y, int back_to_state, int threshold, int buffer);
 void go_behind_ball(struct RoboAI *ai, int back_to_state);
 void unit_vector(double* out_x, double* out_y, double x, double y);
 int compare_by_side(struct RoboAI *ai, double var1, double var2);
-void face_to_ball(struct RoboAI *ai, int back_to_state, int go_buff);
+void face_to(struct RoboAI *ai, double x, double y, int back_to_state, int go_buff);
+void go_to_side(struct RoboAI *ai, int back_to_state);
+int close_to_opp(struct RoboAI *ai);
+int opp_close_to_ball(struct RoboAI *ai);
+void get_away_from_opp(struct RoboAI *ai);
+int at_boundary(double x, double y, double d);
+void go_away_from_ball(struct RoboAI *ai, int back_to_state);
+
 #endif

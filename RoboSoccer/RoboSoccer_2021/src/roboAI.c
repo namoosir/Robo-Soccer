@@ -32,16 +32,20 @@
 
 //global var
 double ball_x, ball_y, ballm_x = 0, ballm_y = 0;
-double opp_x, opp_y;
-double self_x, self_y, self_angle;
+double self_angle;
 int go_buffer = 0;
+int go_buffer_flag = 0;
 int kick_buffer = 230;
 int kick_ready = 0;
 int kicking = 0;
+double pre_dist = 2000;
 double onetx = 0;
 double onety = 0;
 double snetx = 0;
 double snety = 0;
+
+int timeout = 0;
+int spin_timer = 20;
 
 double dottie(double vx, double vy, double ux, double uy)
 {
@@ -851,7 +855,92 @@ void AI_main(struct RoboAI *ai, struct blob *blobs, void *state)
   // printf("nx: %f ny: %f \n", onetx, onety);
 
   if (ai->st.state >= 1 && ai->st.state <= 99) {
-    //TODO
+    if (ai->st.state == 1) {
+      if (close_to_opp(ai)){
+        ai->st.state = 20;
+        return;
+      } else if (at_boundary(ball_x, ball_y, 1.5*SELF_WIDTH)) {
+        ai->st.state = 2;
+      } else {        
+        ai->st.state = 10;
+      }
+    } else if (ai->st.state == 2){
+      if (close_to_opp(ai)){
+        ai->st.state = 20;
+        return;
+      } else if(!at_boundary(ball_x, ball_y, 1.5*SELF_WIDTH)){
+        ai->st.state = 10;
+      }
+      go_to_location(ai, ball_x + ballm_x, ball_y + ballm_y, 3, 120);
+      return;
+    } else if (ai->st.state == 3) {
+      if (close_to_opp(ai)){
+        ai->st.state = 20;
+        return;
+      }
+       go_util_close(ai, ball_x, ball_y, 4, 100, 5);
+       return;
+    } else if(ai->st.state == 4){
+      if (close_to_opp(ai)) {
+        ai->st.state = 20;
+        return;
+      }
+
+      light_kick(ai, 5);
+      return;
+    } else if(ai->st.state == 5){
+      if (close_to_opp(ai)) {
+        ai->st.state = 20;
+        return;
+      }
+      recover_kick(ai, 1);
+      return;     
+    } else if (ai->st.state == 10) {
+      if (compare_by_side(ai, ball_x, ai->st.old_scx)) {
+        ai->st.state = 11;
+        return;
+      } else {
+        double dist = BALL_WIDTH/2 + SELF_WIDTH;
+
+        if (fabs(ball_y-ai->st.old_scy) < dist) {
+          ai->st.state = 16;
+        } else { 
+          ai->st.state = 17;
+        }
+      }
+    } else if (ai->st.state == 11) {
+      if(at_boundary(ball_x, ball_y, 1.5*SELF_WIDTH)){
+        ai->st.state = 2;
+      }
+      go_behind_ball(ai, 12);
+    } else if (ai->st.state == 12) {
+      face_to(ai, onetx, onety, 13, 0);
+    } else if (ai->st.state == 13) {
+      go_util_close(ai, ball_x, ball_y, 14, 100, 4);
+    } else if (ai->st.state == 14) {
+      heavy_kick(ai, 15);
+    } else if (ai->st.state == 15) {
+      recover_kick(ai, 1);    
+    } else if (ai->st.state == 16) {
+      go_away_from_ball(ai, 17);
+    } else if (ai->st.state == 17) {
+      go_to_side(ai, 11);
+    } else if (ai->st.state == 18) {
+
+    } else if (ai->st.state == 20) {
+      if (!close_to_opp(ai)){
+        ai->st.state = 1;
+        return;
+      }
+      if (at_boundary(ai->st.old_scx, ai->st.old_scy, SELF_WIDTH)) {
+        BT_all_stop(0);
+        return;
+      } else {
+        // get_away_from_opp(ai);
+      }
+    } else if (ai->st.state == 3) {
+
+    }
   } else if (ai->st.state >= 101 && ai->st.state <= 199) {
     // if (!ai->st.selfID) {
     //   // state = 100;
@@ -868,39 +957,28 @@ void AI_main(struct RoboAI *ai, struct blob *blobs, void *state)
       if(kick_ready>0){
         ai->st.state == 107;
       }
-      go_to_ball_by_buffer(ai, 103);
+      face_to(ai, onetx, onety, 103, 0);
 
     } else if (ai->st.state == 103) {
-      if(kick_ready>0){
-        ai->st.state == 107;
-      }
-      face_to_ball(ai, 104, 9);
+      go_util_close(ai, ball_x, ball_y, 104, 50, 4);
+      return;
     } else if (ai->st.state == 104) {
-      go_to_ball_by_buffer(ai, 105);
-      return; 
-    } else if (ai->st.state == 105) {
-      heavy_kick(ai, 106);
+      heavy_kick(ai, 105);
       // recover_kick(ai, 106);
       return;
-    } else if (ai->st.state == 106) {
-      recover_kick(ai, 107);
+    } else if (ai->st.state == 105) {
+      recover_kick(ai, 106);
       return;
     } else if (ai->st.state == 107) {
       return;
     }
   } else if (ai->st.state >= 201){
-    // if (!ai->st.ballID || !ai->st.selfID) {
-    //   // printf("can't find agents\n");
-    //   // state = 200;
-    //   ai->st.state = 200;
-    //   return;
-    // } else 
     if (ai->st.state == 201) {
       // printf("going towards ball\n");
       if(kick_ready>0){
         ai->st.state == 204;
       }
-      go_towards_ball(ai, 202);
+      go_to_location(ai, ball_x + ballm_x, ball_y + ballm_y, 202, 120);
       return;
     } else if (ai->st.state == 202) {
       if(kick_ready>0){
@@ -923,6 +1001,46 @@ void AI_main(struct RoboAI *ai, struct blob *blobs, void *state)
 
 }
 
+void go_away_from_ball(struct RoboAI *ai, int back_to_state) {
+   if (fabs(ball_y-ai->st.old_scy) < BALL_WIDTH/2 + SELF_WIDTH) {
+      if (ball_y < 360) {
+        go_to_location(ai, ai->st.old_scx, 720, back_to_state, 10);
+      } else {
+        go_to_location(ai, ai->st.old_scx, 0, back_to_state, 10);
+      }
+    } else {
+      ai->st.state = back_to_state;
+    }
+}
+
+void go_to_side(struct RoboAI *ai, int back_to_state) {
+
+    double distance_from_ball = 130;
+
+    //ball to opponent net vector
+    double nbx = ball_x - onetx;
+    double nby = ball_y - onety;
+
+    double unbx, unby;
+    unit_vector(&unbx, &unby, nbx, nby);
+    double targetx = ball_x + unbx*distance_from_ball;
+    double targety = ball_y;
+    
+    double move_dist = 2*SELF_WIDTH;
+
+    if (ball_y > ai->st.old_scy) {
+      //go up
+      targety -= move_dist;
+      printf("%f %f\n", targetx, targety);
+      go_to_location(ai, targetx, targety, back_to_state, 50);
+    } else {
+      //go down
+      targety += move_dist;
+      printf("%f %f\n", targetx, targety);
+      go_to_location(ai, targetx, targety, back_to_state, 50);
+    }
+}
+
 void go_behind_ball(struct RoboAI *ai, int back_to_state) {
   double distance_from_ball = 130;
 
@@ -935,14 +1053,11 @@ void go_behind_ball(struct RoboAI *ai, int back_to_state) {
   double targetx = ball_x + unbx*distance_from_ball;
   double targety = ball_y + unby*distance_from_ball;
   
-  if(compare_by_side(ai, targetx, ai->st.old_scx)){
-    go_to_location(ai, targetx, targety, back_to_state, 6);
-
-  }
+  go_to_location(ai, targetx, targety, back_to_state, 50);
 }
 
-void face_to_ball(struct RoboAI *ai, int back_to_state, int go_buff){
-  double error = get_angle_from_vector(onetx-ai->st.old_scx, onety-ai->st.old_scy) - self_angle;
+void face_to(struct RoboAI *ai, double x, double y, int back_to_state, int go_buff){
+  double error = get_angle_from_vector(x-ai->st.old_scx, y-ai->st.old_scy) - self_angle;
 
   if (error < -180) {
     error += 360;
@@ -1100,10 +1215,8 @@ void go_towards_ball(struct RoboAI *ai, int back_to_state) {
   go_to_location(ai, ball_pred_x, ball_pred_y, back_to_state, 4);
 }
 
-void go_to_location(struct RoboAI *ai, double x, double y, int back_to_state, int go_buff) {
+void go_to_location(struct RoboAI *ai, double x, double y, int back_to_state, int threshold) {
   double error = get_angle_from_vector(x-ai->st.old_scx, y-ai->st.old_scy) - self_angle;
-  int distance_threshold = 130;
-
   if (error < -180) {
     error += 360;
   } else if (error > 180) {
@@ -1113,20 +1226,19 @@ void go_to_location(struct RoboAI *ai, double x, double y, int back_to_state, in
   
   printf("targetx: %f, targety: %f distance : %f\n", x, y, d);
   //close to ball
-  if (d < distance_threshold && error < 10 && error > -10) {
+  if (d < threshold && error < 8 && error > -8) {
     BT_all_stop(1);
     // printf("close to ball\n");
-    go_buffer = go_buff;
     kick_buffer = 10;
     BT_all_stop(0);
     ai->st.state = back_to_state;
     return;
   //not facing ball
-  } else if (error > 10 || error < -10) {
+  } else if (error > 8 || error < -8) {
     BT_all_stop(1);
 
     int power = 10;
-    if(fabs(error)>60){
+    if(fabs(error)>45){
       power = 30;
     }
     if(error>0){
@@ -1136,14 +1248,58 @@ void go_to_location(struct RoboAI *ai, double x, double y, int back_to_state, in
       BT_motor_port_start(MOTOR_B,-power);
       BT_motor_port_start(MOTOR_C,power);
     }
-    
-    return;
   //facing ball but not close to it
   } else {
     // printf("facing ball but not close to it\n");
     BT_all_stop(1);
     BT_drive(MOTOR_B, MOTOR_C, 50);
+  }
+  pre_dist = d;
+}
+
+void go_util_close(struct RoboAI *ai, double x, double y, int back_to_state, int threshold, int buffer) {
+  double d = dist(x, y, ai->st.old_scx, ai->st.old_scy);
+  printf("%f\n",d);
+  //close to ball
+  if (!ai->st.ballID) {
+    timeout += 1;
+  } else {
+    timeout = 0;
+  }
+
+  if (timeout > 20 && spin_timer > 0) {
+    spin_timer--;
+    int power = 100;
+    BT_motor_port_start(MOTOR_B,power);
+    BT_motor_port_start(MOTOR_C,-power);
     return;
+  }
+
+  if (d > threshold && go_buffer == 0) {
+    BT_all_stop(1);
+    BT_drive(MOTOR_B, MOTOR_C, 50);
+    return;
+  //not facing ball 
+  } else if(go_buffer > 0){
+    if(buffer != 4 || go_buffer > 2){
+      BT_all_stop(1);
+    }
+    BT_drive(MOTOR_B, MOTOR_C, 50);
+    go_buffer -= 1;
+    return;
+  }else if (d < threshold && go_buffer_flag == 0) {
+    go_buffer = buffer;
+    go_buffer_flag = 1;
+    if(buffer != 4){
+      BT_all_stop(1);
+    }
+    return;
+  } else if (go_buffer == 0){
+    ai->st.state = back_to_state;
+    go_buffer_flag = 0;
+    if(buffer != 4){
+      BT_all_stop(1);
+    }
   }
 }
 
@@ -1238,4 +1394,16 @@ void unit_vector(double* out_x, double* out_y, double x, double y) {
   double norm = dist(x, y, 0, 0);
   *out_x = x/norm;
   *out_y = y/norm;
+}
+
+int close_to_opp(struct RoboAI *ai) {
+  return dist(ai->st.old_scx, ai->st.old_scy, ai->st.old_ocx, ai->st.old_ocy) < 150;
+}
+
+int opp_close_to_ball(struct RoboAI *ai) {
+  return dist(ai->st.old_ocx, ai->st.old_ocy, ball_x, ball_y) < 150;
+}
+
+int at_boundary(double x, double y, double d) {
+  return fabs(x-0) < d || fabs(x-1024) < d || fabs(y-0) < d || fabs(y-720) < d;
 }
