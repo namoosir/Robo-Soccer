@@ -167,7 +167,7 @@ void light_kick(struct RoboAI *ai, int back_to_state);
 void kick_ball(int power);
 double get_angle_from_vector(double x, double y);
 double dist(double self_x, double self_y, double target_x, double target_y);
-void go_to_self_net(struct RoboAI *ai, struct blob *blobs, void* state);
+void go_to_self_net(struct RoboAI *ai, int back_to_state);
 void go_to_ball(struct RoboAI *ai, struct blob *blobs, void* state);
 void go_towards_ball(struct RoboAI *ai, int back_to_state);
 void recover_kick(struct RoboAI *ai, int back_to_state);
@@ -184,5 +184,6 @@ int opp_close_to_ball(struct RoboAI *ai);
 void get_away_from_opp(struct RoboAI *ai);
 int at_boundary(double x, double y, double d);
 void go_away_from_ball(struct RoboAI *ai, int back_to_state);
-
+void get_away_from_location(struct RoboAI *ai, int x, int y, int distance, int back_to_state);
+int space_between_opp_goal(struct RoboAI *ai);
 #endif
