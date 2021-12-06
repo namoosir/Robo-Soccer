@@ -1298,7 +1298,7 @@ void go_to_location(struct RoboAI *ai, double x, double y, int back_to_state, in
 
     int power = 10;
     if(fabs(error)>45){
-      power = 30;
+      power = 40;
     }
     if(error>0){
       BT_motor_port_start(MOTOR_B,power);
@@ -1311,7 +1311,11 @@ void go_to_location(struct RoboAI *ai, double x, double y, int back_to_state, in
   } else {
     // printf("facing ball but not close to it\n");
     BT_all_stop(1);
-    BT_drive(MOTOR_B, MOTOR_C, 50);
+    if(d > threshold + 250){
+      BT_drive(MOTOR_B, MOTOR_C, 80);
+    }else{
+      BT_drive(MOTOR_B, MOTOR_C, 50);
+    }
   }
   pre_dist = d;
 }
